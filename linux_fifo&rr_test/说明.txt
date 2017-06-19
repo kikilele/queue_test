@@ -1,0 +1,29 @@
+linux进程调度
+实时进程下有2个方式，FIFO和RR
+ sched_setscheduler 设置
+
+有 99级（最高优先级）的实时进程，3个70级的实时进程，50级，30级，10级的各一个
+对于FIFO而言，一旦sleep过后，高优先级运行，低优先级是没戏运行的，同等优先级的进程，先运行的不运行完，后运行的也没戏。
+对于RR而言，高优先级的先运行，同等优先级的进程过家家，你玩完，我玩，我玩完你再玩，每个进程耗费一个时间片的时间。
+对于Linux，RR时间片是100ms
+
+getpsinfo.sh 观察进程的CPU 占用的time，---psinfo.log，显示命令行下的运行信息
+cswmon_spec.stp 观察名字为test的进程相关的上下文切换，谁替换了test，或者test替换了谁，同时记录下test进程的退出，时间为us
+
+FIFO调度策略的输出:打开三个终端
+
+stap ./cswmon_spec.stp 70
+
+./getpsinfo.sh
+
+./comp.sh 1
+
+99优先级跑完了，才轮到70优先级，但是虽说有3个70优先级，但是先跑的那个进程跑完了，第二个优先级为70的才能跑。
+
+RR的情况：
+stap ./cswmon_spec.stp 70
+
+./getpsinfo.sh
+
+./comp.sh 2
+实时优先级是70的三个进程齐头并进
